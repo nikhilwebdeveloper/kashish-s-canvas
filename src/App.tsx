@@ -29,6 +29,38 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const elementsRef = useRef<{x: number, y: number, size: number, color: string, rotation: number, opacity: number, type: 'flower' | 'heart'}[]>([]);
   const frameRef = useRef<number>(null);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+  const sparkleSoundRef = useRef<HTMLAudioElement | null>(null);
+  const successSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  // --- Audio Initialization ---
+  useEffect(() => {
+    bgMusicRef.current = new Audio('https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3');
+    bgMusicRef.current.loop = true;
+    bgMusicRef.current.volume = 0.4;
+
+    sparkleSoundRef.current = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-magical-sparkle-whoosh-2350.mp3');
+    sparkleSoundRef.current.volume = 0.3;
+
+    successSoundRef.current = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-magical-win-chime-2019.mp3');
+    successSoundRef.current.volume = 0.5;
+
+    return () => {
+      if (bgMusicRef.current) {
+        bgMusicRef.current.pause();
+        bgMusicRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!bgMusicRef.current) return;
+    if (isMuted || gameState === 'intro') {
+      bgMusicRef.current.pause();
+    } else {
+      bgMusicRef.current.play().catch(e => console.log("Audio play blocked:", e));
+    }
+  }, [isMuted, gameState]);
 
   // --- Game Logic ---
   useEffect(() => {
@@ -110,6 +142,10 @@ export default function App() {
     });
 
     // Create a new element (flower or heart)
+    if (!isMuted && sparkleSoundRef.current) {
+      sparkleSoundRef.current.currentTime = 0;
+      sparkleSoundRef.current.play().catch(() => {});
+    }
     const colors = ['#fbcfe8', '#f9a8d4', '#f472b6', '#ec4899', '#db2777', '#be123c', '#9f1239'];
     const newElement = {
       x: e.clientX,
@@ -125,6 +161,9 @@ export default function App() {
     setFlowerCount(prev => {
       const next = prev + 1;
       if (next >= FLOWERS_TO_FINISH) {
+        if (!isMuted && successSoundRef.current) {
+          successSoundRef.current.play().catch(() => {});
+        }
         setTimeout(() => setGameState('letter'), 1000);
       }
       return next;
@@ -213,7 +252,12 @@ export default function App() {
                   Kashish, this canvas is empty, just like the efforts I missed. Use your magic to bring it back to life.
                 </p>
                 <button 
-                  onClick={() => setGameState('playing')}
+                  onClick={() => {
+                    setGameState('playing');
+                    if (!isMuted && bgMusicRef.current) {
+                      bgMusicRef.current.play().catch(() => {});
+                    }
+                  }}
                   className="px-10 py-4 bg-white text-gray-900 rounded-full font-bold tracking-[0.2em] uppercase text-[10px] hover:scale-105 transition-transform shadow-2xl"
                 >
                   Start Painting
@@ -291,7 +335,11 @@ export default function App() {
               <div className="mt-12 pt-8 border-t border-pink-50 flex justify-between items-center">
                 <p className="text-gray-400 text-xs italic">Hamesha tumhara,</p>
                 <button 
-                  onClick={() => setGameState('playing')}
+                  onClick={() => {
+                    setGameState('playing');
+                    setFlowerCount(0);
+                    elementsRef.current = [];
+                  }}
                   className="p-3 rounded-full bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors pointer-events-auto"
                 >
                   <RotateCcw size={20} />
