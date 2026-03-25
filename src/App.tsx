@@ -10,8 +10,6 @@ import {
   Sparkles, 
   Mail, 
   RotateCcw,
-  Volume2,
-  VolumeX,
   Palette
 } from 'lucide-react';
 
@@ -22,45 +20,12 @@ const FLOWERS_TO_FINISH = 40;
 export default function App() {
   const [gameState, setGameState] = useState<'intro' | 'playing' | 'letter'>('intro');
   const [flowerCount, setFlowerCount] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
   const [annoyanceLevel, setAnnoyanceLevel] = useState(0);
   const [showAnnoyanceMsg, setShowAnnoyanceMsg] = useState(false);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const elementsRef = useRef<{x: number, y: number, size: number, color: string, rotation: number, opacity: number, type: 'flower' | 'heart'}[]>([]);
   const frameRef = useRef<number>(null);
-  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
-  const sparkleSoundRef = useRef<HTMLAudioElement | null>(null);
-  const successSoundRef = useRef<HTMLAudioElement | null>(null);
-
-  // --- Audio Initialization ---
-  useEffect(() => {
-    bgMusicRef.current = new Audio('https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3');
-    bgMusicRef.current.loop = true;
-    bgMusicRef.current.volume = 0.4;
-
-    sparkleSoundRef.current = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-magical-sparkle-whoosh-2350.mp3');
-    sparkleSoundRef.current.volume = 0.3;
-
-    successSoundRef.current = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-magical-win-chime-2019.mp3');
-    successSoundRef.current.volume = 0.5;
-
-    return () => {
-      if (bgMusicRef.current) {
-        bgMusicRef.current.pause();
-        bgMusicRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!bgMusicRef.current) return;
-    if (isMuted || gameState === 'intro') {
-      bgMusicRef.current.pause();
-    } else {
-      bgMusicRef.current.play().catch(e => console.log("Audio play blocked:", e));
-    }
-  }, [isMuted, gameState]);
 
   // --- Game Logic ---
   useEffect(() => {
@@ -142,10 +107,6 @@ export default function App() {
     });
 
     // Create a new element (flower or heart)
-    if (!isMuted && sparkleSoundRef.current) {
-      sparkleSoundRef.current.currentTime = 0;
-      sparkleSoundRef.current.play().catch(() => {});
-    }
     const colors = ['#fbcfe8', '#f9a8d4', '#f472b6', '#ec4899', '#db2777', '#be123c', '#9f1239'];
     const newElement = {
       x: e.clientX,
@@ -161,9 +122,6 @@ export default function App() {
     setFlowerCount(prev => {
       const next = prev + 1;
       if (next >= FLOWERS_TO_FINISH) {
-        if (!isMuted && successSoundRef.current) {
-          successSoundRef.current.play().catch(() => {});
-        }
         setTimeout(() => setGameState('letter'), 1000);
       }
       return next;
@@ -218,12 +176,6 @@ export default function App() {
             <div className={`px-4 py-1 rounded-full border text-[10px] font-bold tracking-widest uppercase ${progress > 0.5 ? 'bg-white/40 border-gray-200 text-gray-600' : 'bg-black/20 border-white/10 text-gray-400'}`}>
               Progress: {Math.round(progress * 100)}%
             </div>
-            <button 
-              onClick={() => setIsMuted(!isMuted)}
-              className={`p-2 rounded-full border pointer-events-auto transition-colors ${progress > 0.5 ? 'bg-white/40 border-gray-200 text-gray-600' : 'bg-black/20 border-white/10 text-gray-400'}`}
-            >
-              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            </button>
           </div>
         </div>
 
@@ -251,17 +203,16 @@ export default function App() {
                 <p className="text-gray-400 mb-10 leading-relaxed text-sm md:text-base max-w-md mx-auto">
                   Kashish, this canvas is empty, just like the efforts I missed. Use your magic to bring it back to life.
                 </p>
-                <button 
-                  onClick={() => {
-                    setGameState('playing');
-                    if (!isMuted && bgMusicRef.current) {
-                      bgMusicRef.current.play().catch(() => {});
-                    }
-                  }}
-                  className="px-10 py-4 bg-white text-gray-900 rounded-full font-bold tracking-[0.2em] uppercase text-[10px] hover:scale-105 transition-transform shadow-2xl"
-                >
-                  Start Painting
-                </button>
+                <div className="flex justify-center">
+                  <button 
+                    onClick={() => {
+                      setGameState('playing');
+                    }}
+                    className="px-10 py-4 bg-white text-gray-900 rounded-full font-bold tracking-[0.2em] uppercase text-[10px] hover:scale-105 transition-transform shadow-2xl w-full md:w-auto"
+                  >
+                    Start Painting
+                  </button>
+                </div>
               </motion.div>
             )}
 
