@@ -279,12 +279,12 @@ export default function App() {
                   I want to cherish you, be there for you, and fill your world with all the happiness you deserve.
                 </p>
                 <p className="font-medium text-gray-800">
-                  You are, and will always be, the most special person in my life.
+                  Bas itna hi kehna tha, ki tumhare saath bitaya har pal mere liye bohot keemti hai.
                 </p>
               </div>
 
               <div className="mt-12 pt-8 border-t border-pink-50 flex justify-between items-center">
-                <p className="text-gray-400 text-xs italic">Hamesha tumhara,</p>
+                <p className="text-gray-400 text-xs italic">Bas yunhi...</p>
                 <button 
                   onClick={() => {
                     setGameState('playing');
