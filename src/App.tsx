@@ -167,11 +167,8 @@ export default function App() {
             className="flex flex-col"
           >
             <h1 className={`text-2xl md:text-4xl font-light tracking-widest uppercase ${progress > 0.5 ? 'text-gray-800' : 'text-white'}`}>
-              Kashish's <span className="font-bold italic">Canvas</span>
+              For You <span className="font-bold italic">Kashish</span>
             </h1>
-            <p className={`text-[10px] tracking-[0.4em] uppercase mt-1 ${progress > 0.5 ? 'text-gray-400' : 'text-gray-500'}`}>
-              Every touch is an effort
-            </p>
           </motion.div>
 
           <div className="flex items-center gap-4">
